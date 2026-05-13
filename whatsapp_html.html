@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WhatsApp Bulk Messaging – Paver, U Drain & Kerb</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;min-height:100vh;padding:16px}
+.wrap{max-width:780px;margin:0 auto}
+.header{background:linear-gradient(135deg,#25d366,#128c7e);border-radius:16px;padding:18px 24px;color:#fff;margin-bottom:16px}
+.header h1{font-size:22px;font-weight:700}
+.header p{font-size:13px;opacity:.9;margin-top:4px}
+.header input{background:rgba(255,255,255,.2);border:none;border-radius:8px;padding:4px 10px;color:#fff;font-size:13px;outline:none;width:220px;margin-top:10px}
+.header input::placeholder{color:rgba(255,255,255,.7)}
+.stats{display:flex;gap:10px;margin-bottom:16px}
+.stat{flex:1;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;border-top:3px solid #4caf50}
+.stat .val{font-size:22px;font-weight:700;color:#4caf50}
+.stat .lbl{font-size:11px;color:#666}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{flex:1;padding:9px 6px;border-radius:10px;border:none;cursor:pointer;font-weight:600;font-size:13px;background:#fff;color:#555;transition:all .2s}
+.tab.active{background:#25d366;color:#fff}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-weight:700;color:#333;margin-bottom:12px;font-size:15px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+input[type=text],input[type=tel],select,textarea{padding:8px 12px;border-radius:10px;border:1.5px solid #ddd;font-size:13px;outline:none;font-family:inherit;width:100%}
+input[type=text]:focus,input[type=tel]:focus,select:focus,textarea:focus{border-color:#25d366}
+.btn{background:#25d366;color:#fff;border:none;border-radius:10px;padding:9px 18px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-out{background:#fff;color:#333;border:1.5px solid #ddd;border-radius:10px;padding:9px 14px;cursor:pointer;font-weight:600;font-size:13px}
+.btn-red{background:#ffebee;color:#c62828;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+.btn-sm{padding:6px 10px;font-size:12px}
+.lead-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.lead-info{flex:1;min-width:0}
+.lead-name{font-weight:600;color:#222;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lead-sub{font-size:12px;color:#888;margin-top:2px}
+.badge{border-radius:6px;padding:1px 7px;font-size:11px;font-weight:600}
+.badge-paver{background:#e8f5e9;color:#2e7d32}
+.badge-udrain{background:#e3f2fd;color:#1565c0}
+.badge-kerb{background:#f3e5f5;color:#6a1b9a}
+.badge-both{background:#fff3e0;color:#e65100}
+.badge-sent{background:#e8f5e9;color:#2e7d32}
+.msg-pre{background:#f9f9f9;border-radius:10px;padding:14px;font-size:13px;white-space:pre-wrap;color:#333;font-family:inherit;margin-top:10px;max-height:140px;overflow:auto}
+.wa-bubble{background:#dcf8c6;border-radius:12px;padding:14px;font-size:14px;white-space:pre-wrap;line-height:1.6;color:#222;font-family:inherit}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:24px;max-width:460px;width:100%;max-height:80vh;overflow:auto}
+.modal h2{font-weight:700;font-size:16px;margin-bottom:4px}
+.modal .sub{color:#888;font-size:13px;margin-bottom:14px}
+.modal .btns{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.hint{font-size:11px;color:#999;margin-top:6px}
+.hint b{color:#555}
+.import-hint{background:#fffde7;border-radius:8px;padding:10px;font-size:12px;color:#827717;margin-bottom:12px;line-height:1.8}
+a.btn{text-decoration:none;display:inline-block;text-align:center}
+.empty{color:#aaa;text-align:center;padding:24px}
+.tmpl-block{border:1.5px solid #e0e0e0;border-radius:12px;padding:14px;margin-bottom:14px}
+.tmpl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.tmpl-head h3{font-weight:700;color:#333;font-size:14px}
+.tmpl-actions{display:flex;gap:8px;flex-wrap:wrap}
+.default-tag{background:#e3f2fd;color:#1565c0;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:600}
+.custom-tag{background:#f3e5f5;color:#6a1b9a;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:600}
+.add-tmpl-form{background:#f9f9f9;border-radius:12px;padding:16px;margin-bottom:14px;border:1.5px dashed #25d366}
+.num-chip{display:inline-flex;align-items:center;gap:6px;background:#e8f5e9;border-radius:20px;padding:4px 12px;font-size:13px;color:#2e7d32;margin:4px}
+.num-chip button{background:none;border:none;color:#c62828;cursor:pointer;font-size:15px;line-height:1;padding:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>📲 WhatsApp Bulk Messaging</h1>
+  <p>Paver Blocks, U Drain & Kerb Stone Enquiry Manager</p>
+  <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:13px;opacity:.85">Company:</span>
+    <input type="text" id="companyName" value="Your Company Name" placeholder="Your Company Name"/>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><div class="val" id="statTotal">0</div><div class="lbl">Total Leads</div></div>
+  <div class="stat" style="border-top-color:#2196f3"><div class="val" id="statSelected" style="color:#2196f3">0</div><div class="lbl">Selected</div></div>
+  <div class="stat" style="border-top-color:#9c27b0"><div class="val" id="statSent" style="color:#9c27b0">0</div><div class="lbl">Sent</div></div>
+  <div class="stat" style="border-top-color:#ff9800"><div class="val" id="statPending" style="color:#ff9800">0</div><div class="lbl">Pending</div></div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('leads')">👥 Leads</button>
+  <button class="tab" onclick="showTab('templates')">📝 Templates</button>
+  <button class="tab" onclick="showTab('send')">🚀 Send</button>
+  <button class="tab" onclick="showTab('import')">📥 Import</button>
+</div>
+
+<!-- LEADS TAB -->
+<div id="section-leads">
+  <div class="card">
+    <h2>➕ Add New Lead</h2>
+    <div class="row">
+      <input type="text" id="newName" placeholder="Name *" style="flex:1;min-width:120px"/>
+      <input type="tel" id="newPhone" placeholder="Phone (10 digits) *" style="flex:1;min-width:120px"/>
+      <select id="newEnquiry" style="flex:1;min-width:120px">
+        <option value="paver">Paver Blocks</option>
+        <option value="udrain">U Drain</option>
+        <option value="kerb">Kerb Stones</option>
+        <option value="both">All Products</option>
+      </select>
+      <input type="text" id="newNotes" placeholder="Notes (optional)" style="flex:2;min-width:140px"/>
+      <button class="btn" onclick="addLead()">Add Lead</button>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <h2 style="margin:0" id="leadsHeading">👥 Leads (0)</h2>
+      <button class="btn-out" onclick="selectAll()">Select All</button>
+    </div>
+    <div id="leadList"><div class="empty">No leads yet. Add some above!</div></div>
+  </div>
+</div>
+
+<!-- TEMPLATES TAB -->
+<div id="section-templates" style="display:none">
+  <!-- Add Custom Template -->
+  <div class="add-tmpl-form">
+    <h2 style="margin-bottom:12px;font-size:15px">➕ Add Custom Template</h2>
+    <div class="row">
+      <input type="text" id="newTmplName" placeholder="Template name (e.g. Follow Up, Offer)" style="flex:2"/>
+      <select id="newTmplType" style="flex:1;min-width:120px">
+        <option value="paver">Paver Blocks</option>
+        <option value="udrain">U Drain</option>
+        <option value="kerb">Kerb Stones</option>
+        <option value="both">All Products</option>
+      </select>
+    </div>
+    <textarea id="newTmplBody" rows="6" placeholder="Write your message here...&#10;&#10;Use {name} for customer name and {company} for your company name."></textarea>
+    <div class="hint" style="margin-bottom:10px">Use <b>{name}</b> and <b>{company}</b> as placeholders.</div>
+    <button class="btn" onclick="addCustomTemplate()">Save Template</button>
+  </div>
+  <div id="tmplBlocks"></div>
+</div>
+
+<!-- SEND TAB -->
+<div id="section-send" style="display:none">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <h2 style="margin:0" id="sendHeading">🚀 Bulk Send</h2>
+      <button class="btn-out" onclick="markAllSent()">✓ Mark All Sent</button>
+    </div>
+    <div id="sendList"><div class="empty">No leads selected. Go to Leads tab and select some.</div></div>
+  </div>
+</div>
+
+<!-- IMPORT TAB -->
+<div id="section-import" style="display:none">
+  <div class="card">
+    <h2>📥 Import Numbers</h2>
+    <p style="color:#666;font-size:13px;margin-bottom:12px">Paste phone numbers — one per line. Select which template to send them.</p>
+    <div class="import-hint">
+      📌 Just paste numbers like:<br>
+      9876543210<br>
+      8123456789<br>
+      7654321098<br><br>
+      Numbers will be imported as leads. You can assign names later.
+    </div>
+    <textarea id="importText" rows="6" placeholder="Paste numbers here, one per line..."></textarea>
+    <div class="row" style="margin-top:12px;align-items:center">
+      <select id="importEnquiry" style="flex:1;min-width:140px">
+        <option value="paver">Paver Blocks</option>
+        <option value="udrain">U Drain</option>
+        <option value="kerb">Kerb Stones</option>
+        <option value="both">All Products</option>
+      </select>
+      <button class="btn" onclick="importLeads()">Import Numbers</button>
+      <button class="btn-out" onclick="document.getElementById('importText').value=''">Clear</button>
+    </div>
+    <!-- Preview chips -->
+    <div id="importPreview" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" style="display:none">
+  <div class="modal">
+    <h2>Message Preview</h2>
+    <div class="sub" id="modalSub"></div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;color:#666;font-weight:600">Select Template:</label>
+      <select id="modalTmplSelect" onchange="updateModalMsg()" style="margin-top:4px"></select>
+    </div>
+    <div class="wa-bubble" id="modalMsg"></div>
+    <div class="btns">
+      <a class="btn" id="modalWA" href="#" target="_blank" onclick="modalSent()">Open WhatsApp</a>
+      <button class="btn-out" onclick="modalCopy()">Copy Message</button>
+      <button class="btn-out" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+var leads = [
+  {id:1,name:"Rajesh Kumar",phone:"9876543210",enquiry:"paver",notes:"500 sqft paver for driveway"},
+  {id:2,name:"Priya Devi",phone:"9123456789",enquiry:"udrain",notes:"50m U drain for site drainage"},
+  {id:3,name:"Murugan S",phone:"8765432109",enquiry:"kerb",notes:"Kerb stone for road project"}
+];
+var selected = [];
+var sentIds = [];
+var previewLead = null;
+
+// Default templates
+var defaultTemplates = {
+  paver: {id:'paver', name:'Paver Blocks', type:'paver', isDefault:true,
+    body:"Hi {name}! 👋\n\nThank you for your enquiry about *Paver Blocks*. 🏗️\n\nWe're pleased to offer you:\n✅ Premium quality paver blocks\n✅ Wide range of sizes & designs\n✅ Competitive pricing\n✅ Fast delivery to your location\n\nWe'd love to discuss your requirements:\n• Quantity needed (sq. ft / nos)\n• Preferred size & colour\n• Project location\n\nFeel free to call or message us anytime! 😊\n\n— *{company}*"},
+  udrain: {id:'udrain', name:'U Drain', type:'udrain', isDefault:true,
+    body:"Hi {name}! 👋\n\nThank you for your enquiry about *U Drain Channels*. 🌊\n\nWe offer:\n✅ RCC & Precast U drains\n✅ Various sizes available\n✅ High durability & load-bearing capacity\n✅ Quick installation & delivery\n\nKindly share:\n• Required size (width × depth)\n• Total length / quantity\n• Project site location\n\nCall or message us anytime! 😊\n\n— *{company}*"},
+  kerb: {id:'kerb', name:'Kerb Stones', type:'kerb', isDefault:true,
+    body:"Hi {name}! 👋\n\nThank you for your enquiry about *Kerb Stones*. 🛤️\n\nWe offer:\n✅ Precast RCC kerb stones\n✅ Standard & custom sizes\n✅ High strength & weather resistant\n✅ Competitive pricing & fast delivery\n\nKindly share:\n• Type (straight / radius / drop)\n• Quantity (nos / running metres)\n• Project site location\n\nHappy to help! 😊\n\n— *{company}*"},
+  both: {id:'both', name:'All Products', type:'both', isDefault:true,
+    body:"Hi {name}! 👋\n\nThank you for your enquiry! 🏗️\n\nWe offer:\n\n*Paver Blocks:* ✅ Premium quality, wide range\n*U Drain Channels:* ✅ RCC & Precast, various sizes\n*Kerb Stones:* ✅ Standard & custom sizes\n\nPlease share your requirements (quantity, size, location) for the best quote! 😊\n\n— *{company}*"}
+};
+
+// Custom templates store
+var customTemplates = {};
+
+function company(){return document.getElementById('companyName').value||'Your Company';}
+function fillMsg(body,name){return body.replace(/{name}/g,name).replace(/{company}/g,company());}
+
+function getTemplatesForType(type){
+  var all = [];
+  // default
+  Object.values(defaultTemplates).forEach(t=>{if(t.type===type||type==='both')all.push(t);});
+  // custom
+  Object.values(customTemplates).forEach(t=>{if(t.type===type||t.type==='both')all.push(t);});
+  // also include custom for same type
+  Object.values(customTemplates).forEach(t=>{if(t.type===type && !all.find(a=>a.id===t.id))all.push(t);});
+  // fallback: return matching type default
+  var exact = defaultTemplates[type];
+  if(exact && !all.find(a=>a.id===exact.id)) all.unshift(exact);
+  // dedupe
+  var seen={};var out=[];
+  all.forEach(t=>{if(!seen[t.id]){seen[t.id]=1;out.push(t);}});
+  return out.length?out:[defaultTemplates[type]||defaultTemplates.paver];
+}
+
+function getMsg(lead){
+  var t = defaultTemplates[lead.enquiry]||defaultTemplates.paver;
+  return fillMsg(t.body, lead.name);
+}
+
+function getMsgByTmplId(lead, tmplId){
+  var t = defaultTemplates[tmplId] || customTemplates[tmplId] || defaultTemplates[lead.enquiry] || defaultTemplates.paver;
+  return fillMsg(t.body, lead.name);
+}
+
+function waLink(phone,msg){return 'https://wa.me/91'+phone.replace(/\D/g,'')+'?text='+encodeURIComponent(msg);}
+function badgeClass(e){return e==='paver'?'badge-paver':e==='udrain'?'badge-udrain':e==='kerb'?'badge-kerb':'badge-both';}
+function badgeLabel(e){return e==='paver'?'Paver':e==='udrain'?'U Drain':e==='kerb'?'Kerb':'All Products';}
+
+function updateStats(){
+  document.getElementById('statTotal').textContent=leads.length;
+  document.getElementById('statSelected').textContent=selected.length;
+  document.getElementById('statSent').textContent=sentIds.length;
+  document.getElementById('statPending').textContent=leads.filter(l=>!sentIds.includes(l.id)).length;
+  document.getElementById('leadsHeading').textContent='👥 Leads ('+leads.length+')';
+}
+
+function showTab(t){
+  ['leads','templates','send','import'].forEach((s,i)=>{
+    document.getElementById('section-'+s).style.display=s===t?'':'none';
+    document.querySelectorAll('.tab')[i].classList.toggle('active',s===t);
+  });
+  if(t==='templates')renderTemplates();
+  if(t==='send')renderSend();
+}
+
+function renderLeads(){
+  var el=document.getElementById('leadList');
+  if(!leads.length){el.innerHTML='<div class="empty">No leads yet. Add some above!</div>';updateStats();return;}
+  el.innerHTML=leads.map(l=>{
+    var sent=sentIds.includes(l.id);
+    var sel=selected.includes(l.id);
+    return '<div class="lead-row">'+
+      '<input type="checkbox"'+(sel?' checked':'')+' onchange="toggleSel('+l.id+')" style="width:16px;height:16px;cursor:pointer"/>'+
+      '<div class="lead-info">'+
+        '<div class="lead-name">'+escHtml(l.name)+
+          ' <span class="badge '+badgeClass(l.enquiry)+'">'+badgeLabel(l.enquiry)+'</span>'+
+          (sent?' <span class="badge badge-sent">✓ Sent</span>':'')+
+        '</div>'+
+        '<div class="lead-sub">'+l.phone+(l.notes?' · '+escHtml(l.notes):'')+'</div>'+
+      '</div>'+
+      '<a class="btn btn-sm" href="'+waLink(l.phone,getMsg(l))+'" target="_blank" onclick="markSent(['+l.id+'])">Open WA</a>'+
+      '<button class="btn-out btn-sm" onclick="copyMsg('+l.id+')">Copy</button>'+
+      '<button class="btn-out btn-sm" onclick="openModal('+l.id+')">Preview</button>'+
+      '<button class="btn-red" onclick="removeLead('+l.id+')">✕</button>'+
+    '</div>';
+  }).join('');
+  updateStats();
+}
+
+function renderTemplates(){
+  var html='';
+  // Default templates
+  html+='<div style="font-weight:700;color:#555;font-size:13px;margin-bottom:8px;margin-top:4px">DEFAULT TEMPLATES</div>';
+  Object.values(defaultTemplates).forEach(t=>{
+    html+='<div class="tmpl-block">'+
+      '<div class="tmpl-head">'+
+        '<h3>'+{paver:'🧱',udrain:'🌊',kerb:'🛤️',both:'🏗️'}[t.type]+' '+t.name+' <span class="default-tag">Default</span></h3>'+
+        '<div class="tmpl-actions">'+
+          '<button class="btn-out btn-sm" onclick="toggleEditDefault(\''+t.id+'\')">Edit</button>'+
+          '<button style="background:#fff3e0;color:#e65100;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px" onclick="resetDefault(\''+t.id+'\')">Reset</button>'+
+        '</div>'+
+      '</div>'+
+      '<div id="defaultView_'+t.id+'"><pre class="msg-pre">'+escHtml(t.body)+'</pre></div>'+
+      '<div id="defaultEdit_'+t.id+'" style="display:none">'+
+        '<textarea id="defaultTA_'+t.id+'" rows="8" style="width:100%;border:1.5px solid #25d366;border-radius:10px;padding:12px;font-size:13px;font-family:inherit;resize:vertical">'+escHtml(t.body)+'</textarea>'+
+        '<button class="btn btn-sm" style="margin-top:8px" onclick="saveDefault(\''+t.id+'\')">Save</button>'+
+      '</div>'+
+      '<div class="hint">Use <b>{name}</b> and <b>{company}</b> as placeholders.</div>'+
+    '</div>';
+  });
+
+  // Custom templates
+  var customs = Object.values(customTemplates);
+  if(customs.length){
+    html+='<div style="font-weight:700;color:#555;font-size:13px;margin-bottom:8px;margin-top:16px">CUSTOM TEMPLATES</div>';
+    customs.forEach(t=>{
+      html+='<div class="tmpl-block">'+
+        '<div class="tmpl-head">'+
+          '<h3>'+escHtml(t.name)+' <span class="custom-tag">Custom</span> <span class="badge '+badgeClass(t.type)+'">'+badgeLabel(t.type)+'</span></h3>'+
+          '<div class="tmpl-actions">'+
+            '<button class="btn-out btn-sm" onclick="toggleEditCustom(\''+t.id+'\')">Edit</button>'+
+            '<button class="btn-red btn-sm" onclick="deleteCustomTemplate(\''+t.id+'\')">🗑 Delete</button>'+
+          '</div>'+
+        '</div>'+
+        '<div id="customView_'+t.id+'"><pre class="msg-pre">'+escHtml(t.body)+'</pre></div>'+
+        '<div id="customEdit_'+t.id+'" style="display:none">'+
+          '<input type="text" id="customName_'+t.id+'" value="'+escHtml(t.name)+'" style="margin-bottom:8px"/>'+
+          '<textarea id="customTA_'+t.id+'" rows="8" style="width:100%;border:1.5px solid #25d366;border-radius:10px;padding:12px;font-size:13px;font-family:inherit;resize:vertical">'+escHtml(t.body)+'</textarea>'+
+          '<button class="btn btn-sm" style="margin-top:8px" onclick="saveCustom(\''+t.id+'\')">Save</button>'+
+        '</div>'+
+        '<div class="hint">Use <b>{name}</b> and <b>{company}</b> as placeholders.</div>'+
+      '</div>';
+    });
+  }
+  document.getElementById('tmplBlocks').innerHTML=html;
+}
+
+function toggleEditDefault(id){
+  var v=document.getElementById('defaultView_'+id);
+  var e=document.getElementById('defaultEdit_'+id);
+  var isEdit=e.style.display!=='none';
+  v.style.display=isEdit?'':'none';
+  e.style.display=isEdit?'none':'';
+}
+function saveDefault(id){
+  var val=document.getElementById('defaultTA_'+id).value;
+  defaultTemplates[id].body=val;
+  toggleEditDefault(id);
+  renderTemplates();
+}
+function resetDefault(id){
+  // store originals
+  var orig={
+    paver:"Hi {name}! 👋\n\nThank you for your enquiry about *Paver Blocks*. 🏗️\n\nWe're pleased to offer you:\n✅ Premium quality paver blocks\n✅ Wide range of sizes & designs\n✅ Competitive pricing\n✅ Fast delivery to your location\n\nWe'd love to discuss your requirements:\n• Quantity needed (sq. ft / nos)\n• Preferred size & colour\n• Project location\n\nFeel free to call or message us anytime! 😊\n\n— *{company}*",
+    udrain:"Hi {name}! 👋\n\nThank you for your enquiry about *U Drain Channels*. 🌊\n\nWe offer:\n✅ RCC & Precast U drains\n✅ Various sizes available\n✅ High durability & load-bearing capacity\n✅ Quick installation & delivery\n\nKindly share:\n• Required size (width × depth)\n• Total length / quantity\n• Project site location\n\nCall or message us anytime! 😊\n\n— *{company}*",
+    kerb:"Hi {name}! 👋\n\nThank you for your enquiry about *Kerb Stones*. 🛤️\n\nWe offer:\n✅ Precast RCC kerb stones\n✅ Standard & custom sizes\n✅ High strength & weather resistant\n✅ Competitive pricing & fast delivery\n\nKindly share:\n• Type (straight / radius / drop)\n• Quantity (nos / running metres)\n• Project site location\n\nHappy to help! 😊\n\n— *{company}*",
+    both:"Hi {name}! 👋\n\nThank you for your enquiry! 🏗️\n\nWe offer:\n\n*Paver Blocks:* ✅ Premium quality, wide range\n*U Drain Channels:* ✅ RCC & Precast, various sizes\n*Kerb Stones:* ✅ Standard & custom sizes\n\nPlease share your requirements (quantity, size, location) for the best quote! 😊\n\n— *{company}*"
+  };
+  if(orig[id])defaultTemplates[id].body=orig[id];
+  renderTemplates();
+}
+
+function addCustomTemplate(){
+  var name=document.getElementById('newTmplName').value.trim();
+  var body=document.getElementById('newTmplBody').value.trim();
+  var type=document.getElementById('newTmplType').value;
+  if(!name||!body){alert('Please enter both template name and message!');return;}
+  var id='custom_'+Date.now();
+  customTemplates[id]={id,name,type,body,isDefault:false};
+  document.getElementById('newTmplName').value='';
+  document.getElementById('newTmplBody').value='';
+  renderTemplates();
+}
+
+function toggleEditCustom(id){
+  var v=document.getElementById('customView_'+id);
+  var e=document.getElementById('customEdit_'+id);
+  var isEdit=e.style.display!=='none';
+  v.style.display=isEdit?'':'none';
+  e.style.display=isEdit?'none':'';
+}
+function saveCustom(id){
+  customTemplates[id].name=document.getElementById('customName_'+id).value||customTemplates[id].name;
+  customTemplates[id].body=document.getElementById('customTA_'+id).value;
+  toggleEditCustom(id);
+  renderTemplates();
+}
+function deleteCustomTemplate(id){
+  if(!confirm('Delete this template?'))return;
+  delete customTemplates[id];
+  renderTemplates();
+}
+
+function renderSend(){
+  var sel=leads.filter(l=>selected.includes(l.id));
+  document.getElementById('sendHeading').textContent='🚀 Bulk Send ('+sel.length+' selected)';
+  if(!sel.length){document.getElementById('sendList').innerHTML='<div class="empty">No leads selected. Go to Leads tab and select some.</div>';return;}
+  document.getElementById('sendList').innerHTML=sel.map(l=>{
+    var sent=sentIds.includes(l.id);
+    var msg=getMsg(l);
+    // build template options for this lead
+    var allTmpls=[...Object.values(defaultTemplates),...Object.values(customTemplates)];
+    var opts=allTmpls.map(t=>'<option value="'+t.id+'">'+escHtml(t.name)+'</option>').join('');
+    return '<div style="border:1.5px solid #e0e0e0;border-radius:12px;padding:14px;margin-bottom:12px" id="sendcard_'+l.id+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">'+
+        '<div><span style="font-weight:700">'+escHtml(l.name)+'</span> <span class="badge '+badgeClass(l.enquiry)+'">'+badgeLabel(l.enquiry)+'</span>'+(sent?' <span class="badge badge-sent">✓ Sent</span>':'')+
+        '<div style="font-size:12px;color:#888;margin-top:2px">+91 '+l.phone+'</div></div>'+
+        '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+          '<a class="btn btn-sm" id="walink_'+l.id+'" href="'+waLink(l.phone,msg)+'" target="_blank" onclick="markSent(['+l.id+'])">Open WhatsApp</a>'+
+          '<button class="btn-out btn-sm" onclick="copySendMsg('+l.id+')">Copy</button>'+
+        '</div>'+
+      '</div>'+
+      '<div style="margin-top:10px;display:flex;gap:8px;align-items:center">'+
+        '<label style="font-size:12px;color:#666;white-space:nowrap">Template:</label>'+
+        '<select onchange="updateSendMsg('+l.id+', this.value)" style="flex:1;font-size:12px;padding:4px 8px">'+opts+'</select>'+
+      '</div>'+
+      '<pre class="msg-pre" id="sendmsg_'+l.id+'">'+escHtml(msg)+'</pre>'+
+    '</div>';
+  }).join('');
+}
+
+function updateSendMsg(leadId, tmplId){
+  var l=leads.find(x=>x.id===leadId);
+  if(!l)return;
+  var msg=getMsgByTmplId(l,tmplId);
+  document.getElementById('sendmsg_'+leadId).textContent=msg;
+  document.getElementById('walink_'+leadId).href=waLink(l.phone,msg);
+}
+function copySendMsg(leadId){
+  var pre=document.getElementById('sendmsg_'+leadId);
+  if(!pre)return;
+  navigator.clipboard.writeText(pre.textContent).then(()=>alert('Copied!')).catch(()=>{
+    var ta=document.createElement('textarea');ta.value=pre.textContent;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('Copied!');
+  });
+}
+
+function addLead(){
+  var n=document.getElementById('newName').value.trim();
+  var p=document.getElementById('newPhone').value.trim();
+  if(!n||!p){alert('Name and Phone are required!');return;}
+  leads.push({id:Date.now(),name:n,phone:p,enquiry:document.getElementById('newEnquiry').value,notes:document.getElementById('newNotes').value.trim()});
+  document.getElementById('newName').value='';
+  document.getElementById('newPhone').value='';
+  document.getElementById('newNotes').value='';
+  renderLeads();
+}
+
+function removeLead(id){leads=leads.filter(l=>l.id!==id);selected=selected.filter(s=>s!==id);sentIds=sentIds.filter(s=>s!==id);renderLeads();}
+function toggleSel(id){selected=selected.includes(id)?selected.filter(s=>s!==id):[...selected,id];renderLeads();}
+function selectAll(){selected=selected.length===leads.length?[]:leads.map(l=>l.id);renderLeads();}
+function markSent(ids){sentIds=[...new Set([...sentIds,...ids])];updateStats();}
+function markAllSent(){markSent(selected);renderSend();}
+
+function copyMsg(id){
+  var l=leads.find(x=>x.id===id);if(!l)return;
+  var msg=getMsg(l);
+  navigator.clipboard.writeText(msg).then(()=>alert('Copied!')).catch(()=>{
+    var ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('Copied!');
+  });
+}
+
+function openModal(id){
+  previewLead=leads.find(l=>l.id===id);if(!previewLead)return;
+  document.getElementById('modalSub').textContent='To: '+previewLead.name+' (+91 '+previewLead.phone+')';
+  // populate template selector
+  var allTmpls=[...Object.values(defaultTemplates),...Object.values(customTemplates)];
+  var sel=document.getElementById('modalTmplSelect');
+  sel.innerHTML=allTmpls.map(t=>'<option value="'+t.id+'">'+escHtml(t.name)+'</option>').join('');
+  sel.value=previewLead.enquiry;
+  updateModalMsg();
+  document.getElementById('modal').style.display='flex';
+}
+function updateModalMsg(){
+  if(!previewLead)return;
+  var tmplId=document.getElementById('modalTmplSelect').value;
+  var msg=getMsgByTmplId(previewLead,tmplId);
+  document.getElementById('modalMsg').textContent=msg;
+  document.getElementById('modalWA').href=waLink(previewLead.phone,msg);
+}
+function closeModal(){document.getElementById('modal').style.display='none';previewLead=null;}
+function modalSent(){if(previewLead)markSent([previewLead.id]);closeModal();}
+function modalCopy(){
+  var msg=document.getElementById('modalMsg').textContent;
+  navigator.clipboard.writeText(msg).then(()=>alert('Copied!')).catch(()=>{
+    var ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('Copied!');
+  });
+}
+
+// Import — numbers only
+document.getElementById('importText').addEventListener('input', function(){
+  var lines=this.value.trim().split('\n').filter(l=>l.trim().replace(/\D/g,'').length>=10);
+  var prev=document.getElementById('importPreview');
+  if(!lines.length){prev.innerHTML='';return;}
+  prev.innerHTML='<div style="font-size:12px;color:#666;margin-bottom:6px">Preview ('+lines.length+' numbers):</div>'+
+    lines.slice(0,10).map(l=>'<span class="num-chip">'+l.trim().replace(/\D/g,'').slice(-10)+'</span>').join('')+
+    (lines.length>10?'<span style="font-size:12px;color:#999"> +' +(lines.length-10)+' more</span>':'');
+});
+
+function importLeads(){
+  var txt=document.getElementById('importText').value.trim();
+  if(!txt){alert('Please paste some numbers first!');return;}
+  var enq=document.getElementById('importEnquiry').value;
+  var lines=txt.split('\n').filter(Boolean);
+  var added=0;
+  lines.forEach((line,i)=>{
+    var num=line.trim().replace(/\D/g,'');
+    if(num.length<10)return;
+    num=num.slice(-10);
+    leads.push({id:Date.now()+i,name:'Lead '+num,phone:num,enquiry:enq,notes:''});
+    added++;
+  });
+  document.getElementById('importText').value='';
+  document.getElementById('importPreview').innerHTML='';
+  renderLeads();
+  showTab('leads');
+  alert(added+' numbers imported successfully!');
+}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+renderLeads();
+</script>
+</body>
+</html>
